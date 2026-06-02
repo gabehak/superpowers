@@ -1,0 +1,6 @@
+Store Name,Address Line 1,Address Line 2,City,State,Zip,Country,Phone,URL,Rating,Reviews,store_id
+The Tap House,123 Main St,,Inglewood,CA,90301,US,(310) 555-1001,https://www.thetaphouse.com,4.5,287,slw_001
+Tehran Grill,789 Century Blvd,,Westchester,CA,90045,US,(310) 555-1003,https://tehrangrill.la,4.3,198,slw_003
+Persia Lounge,444 Wilshire Blvd,,Westwood,CA,90024,US,(310) 555-1010,https://persialounge.la,4.6,267,slw_010
+Istanbul Cafe,900 Westwood Blvd,,Westwood,CA,90024,US,(310) 555-1006,https://istanbulcafe.la,4.4,223,slw_006
+No Website Place,111 Some St,,Inglewood,CA,90301,US,(310) 555-9999,,3.8,12,slw_099

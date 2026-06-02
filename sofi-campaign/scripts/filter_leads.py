@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 """
-Filter raw Apify Google Maps scrape output to qualified SoFi leads.
+Filter raw location CSV to qualified SoFi leads.
 Input:  CSV with columns: Name, Address, Website, Phone, Rating, ReviewCount, PlaceId
+        (run normalize_csv.py first if your source is StoreLocatorWidgets, Google Places, etc.)
 Output: sofi_leads_qualified.csv (ready for Airtable import)
+
+Usage:
+  python filter_leads.py apify_raw.csv sofi_leads_qualified.csv   # positional
+  python filter_leads.py --input stores_export.csv                # flag form
+  python filter_leads.py --input apify_raw.csv --output leads.csv
 """
 
+import argparse
 import csv
 import sys
 import re
@@ -104,7 +111,13 @@ def main(input_file: str, output_file: str = "sofi_leads_qualified.csv"):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python filter_leads.py <apify_output.csv> [output.csv]")
-        sys.exit(1)
-    main(*sys.argv[1:])
+    # Support both positional args (original) and --input/--output flags
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("--"):
+        # Legacy positional: filter_leads.py input.csv [output.csv]
+        main(*sys.argv[1:])
+    else:
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--input",  default="apify_raw.csv")
+        parser.add_argument("--output", default="sofi_leads_qualified.csv")
+        args = parser.parse_args()
+        main(args.input, args.output)
