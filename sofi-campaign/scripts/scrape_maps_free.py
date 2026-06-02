@@ -28,16 +28,72 @@ except ImportError:
 PLACES_URL = "https://maps.googleapis.com/maps/api/place/textsearch/json"
 DETAIL_URL = "https://maps.googleapis.com/maps/api/place/details/json"
 
-QUERIES = [
-    "sports bar Inglewood CA",
-    "restaurant Westchester CA",
-    "bar Culver City CA",
-    "sports bar West LA",
-    "brewpub Culver City",
-    "watch party venue Inglewood",
-    "Iranian restaurant Westwood CA",
-    "Turkish restaurant Los Angeles CA",
-]
+QUERY_PROFILES = {
+    "la": [
+        "sports bar Inglewood CA",
+        "restaurant Westchester CA",
+        "bar Culver City CA",
+        "sports bar West LA",
+        "brewpub Culver City",
+        "watch party venue Inglewood",
+        "Iranian restaurant Westwood CA",
+        "Turkish restaurant Los Angeles CA",
+        "sports bar West Hollywood CA",
+        "soccer bar Santa Monica CA",
+        "watch party bar Marina del Rey CA",
+        "sports bar El Segundo CA",
+        "bar near SoFi Stadium Inglewood",
+        "restaurant Hollywood Park Inglewood",
+    ],
+    "nyc": [
+        "sports bar near MetLife Stadium NJ",
+        "watch party bar East Rutherford NJ",
+        "soccer bar Jersey City NJ",
+        "sports bar Midtown Manhattan NY",
+        "bar world cup watch party Brooklyn NY",
+        "Mexican restaurant Jackson Heights Queens NY",
+        "Brazilian restaurant Newark NJ",
+        "bar world cup watch party Hoboken NJ",
+    ],
+    "dallas": [
+        "sports bar near AT&T Stadium Arlington TX",
+        "watch party bar Dallas TX world cup",
+        "soccer bar Uptown Dallas TX",
+        "Mexican restaurant Deep Ellum Dallas TX",
+        "bar world cup watch party Fort Worth TX",
+        "sports bar Irving TX near stadium",
+    ],
+    "bayarea": [
+        "sports bar near Levi's Stadium Santa Clara CA",
+        "watch party bar San Jose CA world cup",
+        "soccer bar San Francisco CA",
+        "bar world cup watch party Oakland CA",
+        "Mexican restaurant San Jose CA",
+        "Brazilian restaurant San Francisco CA",
+    ],
+    "seattle": [
+        "sports bar near Lumen Field Seattle WA",
+        "watch party bar Seattle WA world cup",
+        "soccer bar Capitol Hill Seattle",
+        "bar world cup Seattle WA",
+    ],
+    "boston": [
+        "sports bar near Gillette Stadium Foxborough MA",
+        "watch party bar Boston MA world cup",
+        "soccer bar South Boston",
+        "Irish pub world cup Boston MA",
+    ],
+    "miami": [
+        "sports bar near Hard Rock Stadium Miami FL",
+        "watch party bar Miami Gardens FL",
+        "soccer bar Little Havana Miami",
+        "Colombian restaurant Doral FL",
+        "bar world cup Brickell Miami",
+    ],
+}
+
+# Default: LA only. Override with --city flag.
+QUERIES = QUERY_PROFILES["la"]
 
 OUTPUT_FIELDS = ["Name", "Address", "Website", "Phone", "Rating", "ReviewCount", "PlaceId"]
 
@@ -69,9 +125,16 @@ def get_website(place_id: str, api_key: str) -> str:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", default="apify_raw.csv")
+    parser.add_argument("--city", default="la",
+                        choices=list(QUERY_PROFILES.keys()),
+                        help=f"Host city profile. Options: {', '.join(QUERY_PROFILES)}")
     parser.add_argument("--no-details", action="store_true",
                         help="skip website/phone lookup (saves API calls)")
     args = parser.parse_args()
+
+    global QUERIES
+    QUERIES = QUERY_PROFILES[args.city]
+    print(f"City profile: {args.city} ({len(QUERIES)} search queries)")
 
     api_key = os.environ.get("GOOGLE_PLACES_API_KEY", "")
     if not api_key:
