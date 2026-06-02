@@ -1,0 +1,32 @@
+Name,Address,Neighborhood,Website,Phone,Rating,ReviewCount,PlaceId,Status,Audit_Completed,Deal_Closed
+Proud Bird Restaurant,11022 Aviation Blvd Inglewood CA 90304,Inglewood,https://theproudbird.com,(424) 261-3901,4.3,1847,ChIJproudbird01,not_contacted,false,false
+Earle's on Crenshaw,3864 Crenshaw Blvd Los Angeles CA 90008,Other,https://earlesoncrenshaw.com,(323) 294-2751,4.6,412,ChIJearles01,not_contacted,false,false
+The Serving Spoon,1403 Centinela Ave Inglewood CA 90302,Inglewood,https://theservingspoon.net,(310) 412-3927,4.5,893,ChIJservspoon01,not_contacted,false,false
+Hilton's Steak House,3061 W Manchester Blvd Inglewood CA 90305,Inglewood,https://hiltonssteakhouse.com,(310) 671-0570,4.4,567,ChIJhiltons01,not_contacted,false,false
+Bludso's BBQ,609 N La Brea Ave Los Angeles CA 90036,Other,https://bludsos.com,(323) 931-2583,4.5,2134,ChIJbludsos01,not_contacted,false,false
+Pann's Restaurant,6710 La Tijera Blvd Westchester CA 90045,Westchester,https://panns.com,(310) 670-1441,4.5,2876,ChIJpanns01,not_contacted,false,false
+Encounter Restaurant,209 World Way Los Angeles CA 90045,Other,https://encounterlax.com,(310) 215-5151,4.0,1203,ChIJencounter01,not_contacted,false,false
+Westchester Grill,8650 Sepulveda Blvd Westchester CA 90045,Westchester,https://westchestergrill.com,(310) 641-8100,4.2,334,ChIJwchestgrill01,not_contacted,false,false
+Dockweiler Bar and Grill,12100 Vista Del Mar Playa del Rey CA 90293,Other,https://dockweilerbar.com,(310) 823-4522,4.1,287,ChIJdockweiler01,not_contacted,false,false
+Culver City Bar,9748 Culver Blvd Culver City CA 90232,Culver City,https://culvercitybar.com,(310) 558-1625,4.4,521,ChIJcvbar01,not_contacted,false,false
+The Shack,185 Culver Blvd Playa del Rey CA 90293,Other,https://theshackplayadelrey.com,(310) 823-6222,4.3,678,ChIJtheshack01,not_contacted,false,false
+Father's Office,3229 Helms Ave Culver City CA 90034,Culver City,https://fathersoffice.com,(310) 736-2224,4.4,4521,ChIJfathoff01,not_contacted,false,false
+Plan Check Kitchen,1800 Sawtelle Blvd West LA CA 90025,West LA,https://plancheck.com,(310) 288-6500,4.3,1876,ChIJplancheck01,not_contacted,false,false
+Neighborhood,1212 S Barrington Ave West LA CA 90025,West LA,https://neighborhoodrestaurant.com,(310) 442-9099,4.5,743,ChIJneighborhood01,not_contacted,false,false
+Shamshiri Grill,1712 Westwood Blvd Westwood CA 90024,Westwood,https://shamshirigrill.com,(310) 474-1410,4.5,1243,ChIJshamshiri01,not_contacted,false,false
+Naan Stop,1050 Gayley Ave Westwood CA 90024,Westwood,https://naanstoplausa.com,(310) 208-6226,4.4,567,ChIJnaanstop01,not_contacted,false,false
+Saffron & Rose,1387 Westwood Blvd Westwood CA 90024,Westwood,https://saffronandrose.com,(310) 477-5533,4.6,892,ChIJsaffron01,not_contacted,false,false
+Darya Persian Restaurant,1041 Westwood Blvd Westwood CA 90024,Westwood,https://daryarestaurant.com,(310) 208-0199,4.5,423,ChIJdarya01,not_contacted,false,false
+Anatolia Turkish Restaurant,1415 Westwood Blvd Westwood CA 90024,Westwood,https://anatoliawestwood.com,(310) 477-1413,4.3,312,ChIJanatolia01,not_contacted,false,false
+Istanbul Café Westwood,10850 Lindbrook Dr Westwood CA 90024,Westwood,https://istanbulcafewestwood.com,(310) 443-1060,4.4,287,ChIJistanbul_ww01,not_contacted,false,false
+Zankou Chicken Westwood,1716 S Sepulveda Blvd West LA CA 90025,West LA,https://zankouchicken.com,(310) 477-0900,4.4,1532,ChIJzankou_wla01,not_contacted,false,false
+Attari Sandwich Shop,1388 Westwood Blvd Westwood CA 90024,Westwood,https://attarisandwichshop.com,(310) 441-5488,4.7,687,ChIJattari01,not_contacted,false,false
+Taste of Tehran,1727 Westwood Blvd Westwood CA 90024,Westwood,https://tasteoftehran.com,(310) 470-3395,4.3,178,ChIJtasteoftehran01,not_contacted,false,false
+Bosphorus Restaurant,10803 Venice Blvd Culver City CA 90034,Culver City,https://bosphorusla.com,(310) 842-2500,4.5,234,ChIJbosphorus01,not_contacted,false,false
+Alborz Persian Cuisine,1925 Westwood Blvd West LA CA 90025,West LA,https://alborzla.com,(310) 470-8800,4.4,389,ChIJalborz01,not_contacted,false,false
+Marina del Rey Hotel Bar,13534 Bali Way Marina del Rey CA 90292,Marina del Rey,https://marinadelreyhotel.com,(310) 301-1000,4.2,445,ChIJmdr_hotel01,not_contacted,false,false
+Beachside Bar Culver,13455 Maxella Ave Marina del Rey CA 90292,Marina del Rey,https://beachsidebar.com,(310) 822-2888,4.3,312,ChIJbeachside01,not_contacted,false,false
+Ports O' Call,12862 Culver Blvd Playa del Rey CA 90293,Other,https://portsocall.com,(310) 821-5550,4.0,89,ChIJports01,not_contacted,false,false
+The Hangar Bar,7500 Airport Blvd El Segundo CA 90245,El Segundo,https://hangarbar.com,(310) 640-1100,4.5,421,ChIJhangar01,not_contacted,false,false
+Continental Bar,10940 W Pico Blvd West LA CA 90064,West LA,https://continentalbarla.com,(310) 441-5269,4.2,234,ChIJcontinental01,not_contacted,false,false
+The Garage Bar,3435 W El Segundo Blvd Hawthorne CA 90250,El Segundo,https://garagebarhawthorne.com,(310) 675-3000,4.1,167,ChIJgaragebar01,not_contacted,false,false
