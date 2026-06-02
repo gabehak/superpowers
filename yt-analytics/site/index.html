@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YT Comment Intelligence</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0D0D0D; --mid: #1A1A1A; --card: #222; --border: #2E2E2E;
+      --text: #F0F0F0; --muted: #777; --red: #D62828; --gold: #F4C430;
+      --green: #2ECC71; --blue: #3498DB; --purple: #9B59B6;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* NAV */
+    nav { background: var(--mid); border-bottom: 1px solid var(--border); padding: 0 1.5rem; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 99; }
+    .logo { font-weight: 800; font-size: 1rem; letter-spacing: -0.02em; display: flex; align-items: center; gap: 0.5rem; }
+    .logo span { color: var(--red); }
+    .tabs { display: flex; gap: 0.25rem; }
+    .tab { padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: var(--muted); border: none; background: none; transition: all 0.15s; }
+    .tab.active, .tab:hover { background: var(--card); color: var(--text); }
+    .tab.active { color: var(--gold); }
+    .last-updated { font-size: 0.7rem; color: var(--muted); }
+
+    /* PAGES */
+    .page { display: none; padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    /* STAT CARDS */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem; }
+    .stat-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
+    .stat-value { font-size: 1.8rem; font-weight: 800; }
+    .stat-sub { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+
+    /* CHARTS ROW */
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+    @media (max-width: 700px) { .charts-row { grid-template-columns: 1fr; } }
+    .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+    .chart-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 1rem; }
+    canvas { max-height: 220px; }
+
+    /* LISTS */
+    .insight-list { display: grid; gap: 0.6rem; }
+    .insight-item { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.9rem 1rem; font-size: 0.875rem; line-height: 1.5; }
+    .insight-item .num { display: inline-block; min-width: 22px; height: 22px; background: var(--red); border-radius: 50%; font-size: 0.7rem; font-weight: 800; text-align: center; line-height: 22px; margin-right: 0.6rem; flex-shrink: 0; }
+    .tag { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; margin-left: 0.5rem; text-transform: uppercase; }
+    .tag-q { background: #1a3a5c; color: var(--blue); }
+    .tag-pos { background: #0d2e1a; color: var(--green); }
+    .tag-req { background: #2e2000; color: var(--gold); }
+    .tag-neg { background: #2e0d0d; color: var(--red); }
+    .tag-gen { background: var(--mid); color: var(--muted); }
+
+    /* COMMENTS TABLE */
+    .search-bar { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text); font-size: 0.875rem; margin-bottom: 1rem; }
+    .search-bar::placeholder { color: var(--muted); }
+    .search-bar:focus { outline: none; border-color: var(--red); }
+    .comments-list { display: grid; gap: 0.5rem; }
+    .comment-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.9rem 1rem; }
+    .comment-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.25rem; }
+    .comment-author { font-size: 0.8rem; font-weight: 700; }
+    .comment-video { font-size: 0.7rem; color: var(--muted); }
+    .comment-text { font-size: 0.875rem; line-height: 1.55; color: #ddd; }
+    .comment-footer { margin-top: 0.5rem; display: flex; align-items: center; gap: 0.75rem; font-size: 0.72rem; color: var(--muted); }
+    .comment-link { color: var(--blue); text-decoration: none; font-size: 0.72rem; }
+    .comment-link:hover { text-decoration: underline; }
+    .load-more { display: block; width: 100%; padding: 0.75rem; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.8rem; cursor: pointer; margin-top: 0.75rem; font-weight: 600; }
+    .load-more:hover { border-color: var(--red); color: var(--text); }
+
+    /* TOOLS */
+    .tools-grid { display: grid; gap: 0.5rem; }
+    .tool-row { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 1rem; }
+    .tool-name { font-weight: 600; min-width: 140px; }
+    .tool-bar-bg { flex: 1; background: var(--mid); border-radius: 4px; height: 8px; }
+    .tool-bar { background: var(--red); border-radius: 4px; height: 8px; }
+    .tool-count { font-size: 0.8rem; color: var(--muted); min-width: 40px; text-align: right; }
+
+    /* EMPTY / LOADING */
+    .empty { text-align: center; padding: 4rem 2rem; color: var(--muted); }
+    .empty h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+    .empty p { font-size: 0.875rem; line-height: 1.6; }
+    .empty code { background: var(--card); padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.8rem; color: var(--gold); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">▶ <span>YT</span> Comment Intel</div>
+  <div class="tabs">
+    <button class="tab active" onclick="showPage('overview')">Overview</button>
+    <button class="tab" onclick="showPage('insights')">Insights</button>
+    <button class="tab" onclick="showPage('tools')">Tools</button>
+    <button class="tab" onclick="showPage('comments')">Comments</button>
+  </div>
+  <div class="last-updated" id="last-updated">—</div>
+</nav>
+
+<!-- OVERVIEW -->
+<div id="page-overview" class="page active">
+  <div class="stats-grid" id="stats-grid"></div>
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">Comment Sentiment Mix</div>
+      <canvas id="sentiment-chart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Category Breakdown</div>
+      <canvas id="category-chart"></canvas>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Top Themes</div>
+    <canvas id="themes-chart" style="max-height:160px"></canvas>
+  </div>
+</div>
+
+<!-- INSIGHTS -->
+<div id="page-insights" class="page">
+  <div style="display:grid;gap:1.5rem">
+    <div>
+      <div class="chart-title" style="margin-bottom:0.75rem">🎯 Creator Insights</div>
+      <div class="insight-list" id="creator-insights"></div>
+    </div>
+    <div>
+      <div class="chart-title" style="margin-bottom:0.75rem">❓ Top Questions</div>
+      <div class="insight-list" id="top-questions"></div>
+    </div>
+    <div>
+      <div class="chart-title" style="margin-bottom:0.75rem">🎬 Requested Video Topics</div>
+      <div class="insight-list" id="content-requests"></div>
+    </div>
+    <div>
+      <div class="chart-title" style="margin-bottom:0.75rem">⭐ High-Priority Replies</div>
+      <div class="insight-list" id="priority-replies"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLS -->
+<div id="page-tools" class="page">
+  <div class="tools-grid" id="tools-grid"></div>
+</div>
+
+<!-- COMMENTS -->
+<div id="page-comments" class="page">
+  <input class="search-bar" type="text" placeholder="Search comments…" oninput="filterComments(this.value)">
+  <div class="comments-list" id="comments-list"></div>
+  <button class="load-more" id="load-more-btn" onclick="loadMore()">Load more…</button>
+</div>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────────
+// Replace DASHBOARD_DATA with the output of: python scripts/export_json.py
+// Or the dashboard will show demo data.
+
+const DEMO_DATA = {
+  generated: new Date().toISOString(),
+  total_comments: 208,
+  videos_analyzed: 3,
+  total_likes: 1247,
+  sentiment: { positive: 89, question: 71, neutral: 38, negative: 10 },
+  categories: { question: 71, positive_feedback: 89, content_request: 24, issue_report: 10, general: 14 },
+  key_themes: ["Beginner questions", "Tool comparisons", "Pricing / cost", "Workflow ideas", "Positive feedback"],
+  theme_counts: [52, 38, 29, 24, 89],
+  creator_insights: [
+    "Most engaged comments are questions — consider a dedicated Q&A video",
+    "High tool-mention rate (Claude, ChatGPT, Cursor) suggests technical audience hungry for comparisons",
+    "Reply to top-liked questions first — these drive the most engagement signal",
+  ],
+  top_questions: [
+    "How do I get started with Claude Code if I'm not a developer?",
+    "What's the difference between Claude Code and Cursor?",
+    "Is there a free tier for the Anthropic API?",
+    "Can you show a real-world automation example from start to finish?",
+    "How do you handle context window limits in long projects?",
+  ],
+  content_requests: [
+    "Full walkthrough of building an n8n automation from scratch",
+    "Claude vs ChatGPT for coding — honest comparison video",
+    "How to set up your own AI OS without any coding background",
+    "Beginner-friendly intro to APIs and webhooks",
+    "Real business use cases with actual ROI numbers",
+  ],
+  top_tools: { "Claude": 87, "ChatGPT": 54, "n8n": 38, "Cursor": 29, "Airtable": 24, "Python": 19, "Zapier": 14, "GitHub": 12 },
+  priority_replies: [
+    "This is exactly what I needed — I've been trying to figure out how to automate my client reports for months. Do you offer any consulting?",
+    "Followed every step and still getting an API error at minute 12:30. Anyone else?",
+    "Just landed my first AI automation client using your method. Thank you!!",
+    "Would love a version of this for non-technical people. My boss wants this but can't code at all.",
+    "Best explanation of MCP servers I've seen anywhere. Please make a deep dive.",
+  ],
+  comments: [
+    { author: "Alex M.", video: "Claude Code Full Tutorial", text: "This is exactly what I needed — been trying to automate client reports for months. Do you offer consulting?", likes: 47, category: "question", url: "#" },
+    { author: "Sarah K.", video: "Claude Code Full Tutorial", text: "Just landed my first AI automation client using this method. Thank you so much!!", likes: 31, category: "positive_feedback", url: "#" },
+    { author: "Dev_Noob22", video: "n8n Automation Guide", text: "Followed every step and still getting API error at 12:30. Anyone else having this issue?", likes: 28, category: "issue_report", url: "#" },
+    { author: "JordanBuilds", video: "Claude Code Full Tutorial", text: "Would love a version of this for non-technical people. My boss wants it but can't code at all.", likes: 22, category: "content_request", url: "#" },
+    { author: "TechMike", video: "MCP Servers Explained", text: "Best explanation of MCP servers I've seen anywhere on the internet. Please do a deep dive next.", likes: 19, category: "content_request", url: "#" },
+    { author: "Priya R.", video: "MCP Servers Explained", text: "Can you do a comparison video of Claude vs GPT for actual coding tasks? Not benchmarks, real projects.", likes: 17, category: "content_request", url: "#" },
+    { author: "mark_automates", video: "n8n Automation Guide", text: "What's the best way to handle rate limits when running this at scale?", likes: 14, category: "question", url: "#" },
+    { author: "Ana B.", video: "Claude Code Full Tutorial", text: "Amazing content as always! Your channel is the only one I actually learn from.", likes: 12, category: "positive_feedback", url: "#" },
+  ]
+};
+
+// Try to load real data from data.json (populated by export_json.py)
+let DATA = DEMO_DATA;
+fetch("data.json")
+  .then(r => r.json())
+  .then(d => { DATA = d; initDashboard(); })
+  .catch(() => initDashboard());
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+function initDashboard() {
+  document.getElementById("last-updated").textContent =
+    new Date(DATA.generated).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+
+  renderStats();
+  renderCharts();
+  renderInsights();
+  renderTools();
+  renderComments();
+}
+
+// ── STATS ────────────────────────────────────────────────────────────────────
+function renderStats() {
+  const g = document.getElementById("stats-grid");
+  const q = DATA.sentiment?.question || 0;
+  const pos = DATA.sentiment?.positive || 0;
+  const stats = [
+    { label: "Total Comments", value: DATA.total_comments, sub: `across ${DATA.videos_analyzed} videos`, color: "var(--red)" },
+    { label: "Total Likes", value: DATA.total_likes?.toLocaleString(), sub: "on all comments", color: "var(--gold)" },
+    { label: "Questions", value: q, sub: `${Math.round(q/DATA.total_comments*100)}% of comments`, color: "var(--blue)" },
+    { label: "Positive", value: pos, sub: `${Math.round(pos/DATA.total_comments*100)}% of comments`, color: "var(--green)" },
+    { label: "Videos", value: DATA.videos_analyzed, sub: "analyzed", color: "var(--purple)" },
+  ];
+  g.innerHTML = stats.map(s => `
+    <div class="stat-card">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value" style="color:${s.color}">${s.value}</div>
+      <div class="stat-sub">${s.sub}</div>
+    </div>`).join("");
+}
+
+// ── CHARTS ───────────────────────────────────────────────────────────────────
+const CHART_OPTS = {
+  plugins: { legend: { labels: { color: "#999", font: { size: 11 } } } },
+  scales: { x: { ticks: { color: "#777" }, grid: { color: "#222" } }, y: { ticks: { color: "#777" }, grid: { color: "#222" } } }
+};
+
+function renderCharts() {
+  const sent = DATA.sentiment || {};
+  new Chart(document.getElementById("sentiment-chart"), {
+    type: "doughnut",
+    data: {
+      labels: Object.keys(sent).map(k => k.charAt(0).toUpperCase() + k.slice(1)),
+      datasets: [{ data: Object.values(sent), backgroundColor: ["#2ECC71","#3498DB","#888","#D62828"], borderWidth: 0 }]
+    },
+    options: { plugins: { legend: { labels: { color: "#999" } } } }
+  });
+
+  const cats = DATA.categories || {};
+  new Chart(document.getElementById("category-chart"), {
+    type: "bar",
+    data: {
+      labels: Object.keys(cats).map(k => k.replace("_", " ")),
+      datasets: [{ data: Object.values(cats), backgroundColor: "#D62828", borderRadius: 4 }]
+    },
+    options: { ...CHART_OPTS, plugins: { legend: { display: false } } }
+  });
+
+  const themes = DATA.key_themes || [];
+  const counts = DATA.theme_counts || themes.map(() => 0);
+  new Chart(document.getElementById("themes-chart"), {
+    type: "bar",
+    data: {
+      labels: themes,
+      datasets: [{ data: counts, backgroundColor: "#F4C430", borderRadius: 4 }]
+    },
+    options: { ...CHART_OPTS, indexAxis: "y", plugins: { legend: { display: false } } }
+  });
+}
+
+// ── INSIGHTS ─────────────────────────────────────────────────────────────────
+function listItems(id, items) {
+  document.getElementById(id).innerHTML = (items || []).map((item, i) =>
+    `<div class="insight-item"><span class="num">${i+1}</span>${item}</div>`
+  ).join("") || '<div class="insight-item" style="color:var(--muted)">No data — run analysis first</div>';
+}
+
+function renderInsights() {
+  listItems("creator-insights", DATA.creator_insights);
+  listItems("top-questions", DATA.top_questions);
+  listItems("content-requests", DATA.content_requests);
+  listItems("priority-replies", DATA.priority_replies);
+}
+
+// ── TOOLS ────────────────────────────────────────────────────────────────────
+function renderTools() {
+  const tools = DATA.top_tools || {};
+  const max = Math.max(...Object.values(tools), 1);
+  document.getElementById("tools-grid").innerHTML = Object.entries(tools)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, count]) => `
+      <div class="tool-row">
+        <div class="tool-name">${name}</div>
+        <div class="tool-bar-bg"><div class="tool-bar" style="width:${count/max*100}%"></div></div>
+        <div class="tool-count">${count} mentions</div>
+      </div>`).join("") || '<div class="insight-item" style="color:var(--muted)">No tool data</div>';
+}
+
+// ── COMMENTS ─────────────────────────────────────────────────────────────────
+let allComments = [];
+let filtered = [];
+let shown = 20;
+
+const tagMap = { question: "tag-q", positive_feedback: "tag-pos", content_request: "tag-req", issue_report: "tag-neg", general: "tag-gen" };
+
+function commentCard(c) {
+  const tag = c.category?.replace("_", " ") || "general";
+  const cls = tagMap[c.category] || "tag-gen";
+  return `
+    <div class="comment-card">
+      <div class="comment-meta">
+        <span class="comment-author">${c.author || "Anonymous"}</span>
+        <span class="tag ${cls}">${tag}</span>
+      </div>
+      <div class="comment-video">${c.video || c.video_title || ""}</div>
+      <div class="comment-text">${(c.text || "").slice(0, 400)}</div>
+      <div class="comment-footer">
+        <span>👍 ${c.likes || 0}</span>
+        ${c.url && c.url !== "#" ? `<a class="comment-link" href="${c.url}" target="_blank" rel="noopener">Open on YouTube →</a>` : ""}
+      </div>
+    </div>`;
+}
+
+function renderComments() {
+  allComments = DATA.comments || [];
+  filtered = allComments;
+  shown = 20;
+  flushComments();
+}
+
+function flushComments() {
+  const list = document.getElementById("comments-list");
+  list.innerHTML = filtered.slice(0, shown).map(commentCard).join("");
+  document.getElementById("load-more-btn").style.display = shown >= filtered.length ? "none" : "block";
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty"><h3>No comments match</h3><p>Try a different search term.</p></div>';
+  }
+}
+
+function filterComments(q) {
+  const term = q.toLowerCase();
+  filtered = term ? allComments.filter(c =>
+    (c.text || "").toLowerCase().includes(term) ||
+    (c.author || "").toLowerCase().includes(term) ||
+    (c.video || c.video_title || "").toLowerCase().includes(term)
+  ) : allComments;
+  shown = 20;
+  flushComments();
+}
+
+function loadMore() {
+  shown += 20;
+  flushComments();
+}
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.getElementById("page-" + id).classList.add("active");
+  event.target.classList.add("active");
+}
+</script>
+</body>
+</html>
